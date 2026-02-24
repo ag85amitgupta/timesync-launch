@@ -1,193 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create a Timer - TimeSync</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-        }
-        
-        h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            color: #333;
-            text-align: center;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            color: #666;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .input-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
-        
-        input[type="number"] {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            text-align: center;
-            transition: border-color 0.2s;
-        }
-        
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .input-label {
-            font-size: 11px;
-            color: #999;
-            margin-top: 4px;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-        
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .button:active {
-            transform: translateY(0);
-        }
-        
-        .error {
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 4px;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create a Timer - TimeSync</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      transition: background 1.5s ease;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+    }
+
+    /* Dynamic gradient cycle (10 soft, readable, professional palettes) */
+    @keyframes bgCycle {
+      0%   { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+      10%  { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+      20%  { background: linear-gradient(135deg, #a6c1ee 0%, #f6d365 100%); }
+      30%  { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+      40%  { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+      50%  { background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%); }
+      60%  { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+      70%  { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+      80%  { background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%); }
+      90%  { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+      100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      animation: bgCycle 45s infinite ease;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    label {
+      display: block;
+      color: rgba(255,255,255,0.95);
+      margin: 10px 0 8px;
+      font-weight: 600;
+      text-align: left;
+      max-width: 800px;
+      width: 100%;
+      font-size: 1.05rem;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      max-width: 800px;
+      padding: 16px;
+      font-size: 1.15rem;
+      border-radius: 12px;
+      border: none;
+      margin-bottom: 16px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+      backdrop-filter: blur(4px);
+      transition: all 0.25s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      outline: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.98);
+    }
+
+    .time-inputs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+    }
+    .time-inputs input {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 0;
+      padding: 16px 12px;
+    }
+
+    #startBtn {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      max-width: 800px;
+      transition: 0.3s;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+      margin-top: 10px;
+    }
+    #startBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.35);
+    }
+
+    .hint {
+      color: rgba(255,255,255,0.85);
+      margin-top: 12px;
+      font-size: 0.95rem;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>⏱️ Create a Timer</h1>
-        <p class="subtitle">Set a countdown and share with your group</p>
-        
-        <form id="timerForm">
-            <div class="form-group">
-                <label for="title">Timer Name (optional)</label>
-                <input type="text" id="title" placeholder="e.g., Call with Maya & Raj">
-            </div>
-            
-            <div class="form-group">
-                <label>Duration</label>
-                <div class="input-row">
-                    <div>
-                        <input type="number" id="days" min="0" max="365" value="0" placeholder="0">
-                        <div class="input-label">Days</div>
-                    </div>
-                    <div>
-                        <input type="number" id="hours" min="0" max="23" value="0" placeholder="0">
-                        <div class="input-label">Hours</div>
-                    </div>
-                    <div>
-                        <input type="number" id="minutes" min="0" max="59" value="0" placeholder="0">
-                        <div class="input-label">Minutes</div>
-                    </div>
-                    <div>
-                        <input type="number" id="seconds" min="0" max="59" value="30" placeholder="0">
-                        <div class="input-label">Seconds</div>
-                    </div>
-                </div>
-                <div class="error" id="durationError">Please set at least 1 second</div>
-            </div>
-            
-            <button type="submit" class="button">Create & Share Timer</button>
-        </form>
-    </div>
-    
-    <script>
-        document.getElementById('timerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const days = parseInt(document.getElementById('days').value) || 0;
-            const hours = parseInt(document.getElementById('hours').value) || 0;
-            const minutes = parseInt(document.getElementById('minutes').value) || 0;
-            const seconds = parseInt(document.getElementById('seconds').value) || 0;
-            const title = document.getElementById('title').value.trim();
-            
-            if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
-                document.getElementById('durationError').style.display = 'block';
-                return;
-            }
-            
-            const id = Date.now().toString(36) + Math.random().toString(36).substr(2);
-            const duration = `${days}:${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            const encodedTitle = title ? encodeURIComponent(title) : '';
-            const viewUrl = `/view.html?id=${id}&duration=${duration}${encodedTitle ? '&title=' + encodedTitle : ''}`;
-            
-            window.location.href = viewUrl;
-        });
-    </script>
+  <h1>⏱️ TimeSync</h1>
+
+  <label for="title">🎯 Timer Name or Topic</label>
+  <input type="text" id="title" placeholder="Game Night / Team Standup / Family Call...">
+
+  <label>⏰ Duration (DD:HH:MM:SS)</label>
+  <div class="time-inputs">
+    <input type="number" id="days" min="0" value="0" placeholder="DD">
+    <input type="number" id="hours" min="0" max="23" value="0" placeholder="HH">
+    <input type="number" id="minutes" min="0" max="59" value="0" placeholder="MM">
+    <input type="number" id="seconds" min="0" max="59" value="30" placeholder="SS">
+  </div>
+
+  <button id="startBtn">🚀 Start Countdown</button>
+  <div class="hint">Starts instantly on the next screen. You’ll see the countdown + a “Terminate Timer” button.</div>
+
+  <script>
+    document.getElementById('startBtn').addEventListener('click', () => {
+      const d = parseInt(document.getElementById('days').value) || 0;
+      const h = parseInt(document.getElementById('hours').value) || 0;
+      const m = parseInt(document.getElementById('minutes').value) || 0;
+      const s = parseInt(document.getElementById('seconds').value) || 0;
+      const title = (document.getElementById('title').value || '').trim();
+
+      const total = d*86400 + h*3600 + m*60 + s;
+      if (total <= 0) { alert('Please enter a valid duration (at least 1 second).'); return; }
+
+      const id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+      const duration = `${d}:${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      const t = title ? `&title=${encodeURIComponent(title)}` : '';
+      location.href = `/view.html?id=${id}&duration=${duration}${t}`;
+    });
+  </script>
 </body>
 </html>
