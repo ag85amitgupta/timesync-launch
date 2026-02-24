@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeSync Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        
+        .timer-display {
+            font-size: 56px;
+            font-weight: 700;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            margin: 40px 0;
+            letter-spacing: 2px;
+        }
+        
+        .qr-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .qr-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        #qrcode {
+            display: inline-block;
+        }
+        
+        .button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .ended {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="timerTitle">⏱️ TimeSync</h1>
+        <p class="subtitle">Everyone sees the same countdown</p>
+        
+        <div id="timerContent">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            
+            <div class="qr-section">
+                <div class="qr-label">Share This Link</div>
+                <div id="qrcode"></div>
+                <p style="margin-top: 12px; font-size: 12px; color: #666;" id="shareLink"></p>
+            </div>
+            
+            <button class="button" onclick="copyLink()">📋 Copy Link</button>
+            <button class="button" onclick="location.href='/'">← Back to Create</button>
+        </div>
+        
+        <div id="endedContent" style="display: none;">
+            <div class="ended">⏰ TIME'S UP!</div>
+            <p style="font-size: 18px; color: #333; margin: 20px 0;">SHUT UP — I'M JOINING NOW!</p>
+            <button class="button" onclick="location.href='/'">Create Another Timer</button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const timerId = params.get('id');
+        const durationStr = params.get('duration');
+        const timerTitle = params.get('title') ? decodeURIComponent(params.get('title')) : 'TimeSync';
+        
+        let totalSeconds = 0;
+        if (durationStr) {
+            const [days, hours, minutes, seconds] = durationStr.split(':').map(Number);
+            totalSeconds = (days * 86400) + (hours * 3600) + (minutes * 60) + seconds;
+        } else {
+            totalSeconds = 30;
+        }
+        
+        let remainingSeconds = totalSeconds;
+        let isRunning = false;
+        let timerInterval = null;
+        
+        document.getElementById('timerTitle').textContent = '⏱️ ' + timerTitle;
+        
+        const shareUrl = `${window.location.origin}/view.html?id=${timerId}&duration=${durationStr}${timerTitle ? '&title=' + encodeURIComponent(timerTitle) : ''}`;
+        new QRCode(document.getElementById('qrcode'), {
+            text: shareUrl,
+            width: 200,
+            height: 200,
+            colorDark: '#667eea',
+            colorLight: '#ffffff'
+        });
+        
+        document.getElementById('shareLink').textContent = shareUrl;
+        
+        function formatTime(secs) {
+            const hours = Math.floor(secs / 3600);
+            const mins = Math.floor((secs % 3600) / 60);
+            const secsRem = secs % 60;
+            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
+        }
+        
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
+        }
+        
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateDisplay();
+                
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    onTimerEnd();
+                }
+            }, 1000);
+        }
+        
+        function onTimerEnd() {
+            document.getElementById('timerContent').style.display = 'none';
+            document.getElementById('endedContent').style.display = 'block';
+        }
+        
+        function copyLink() {
+            navigator.clipboard.writeText(document.getElementById('shareLink').textContent).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+        
+        updateDisplay();
+        startTimer();
+    </script>
+</body>
+</html>
