@@ -20,7 +20,7 @@
       text-align: center;
     }
 
-    /* Dynamic gradient cycle (same 10 palettes as create.html) */
+    /* Dynamic gradient cycle */
     @keyframes bgCycle {
       0%   { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
       10%  { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
@@ -42,7 +42,7 @@
       z-index: -1;
     }
 
-    /* Timer screen — no container, full immersion */
+    /* Timer screen — no container */
     .timer-title {
       font-size: 4rem;
       color: white;
@@ -69,7 +69,7 @@
     .val { font-size: 3.2rem; font-weight: 800; color: #2c3e50; display: block; }
     .lab { font-size: 0.85rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
 
-    /* Terminate button — exact same deep red gradient */
+    /* Terminate button — Deep Red */
     #terminateBtn {
       background: linear-gradient(135deg, #9b2c2c, #8a2323);
       color: white;
@@ -90,83 +90,43 @@
       box-shadow: 0 14px 40px rgba(0,0,0,0.4);
     }
 
-    /* END SCREEN — gradient background + fireworks */
+    /* END SCREEN */
     #endScreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: none;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      padding-top: 5vh;
-      z-index: 9999;
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      display: none; flex-direction: column; justify-content: flex-start;
+      align-items: center; padding-top: 5vh; z-index: 9999;
       backdrop-filter: blur(2px);
-      background: rgba(12, 20, 69, 0.85); /* subtle overlay for contrast */
+      background: rgba(12, 20, 69, 0.85); /* Dark overlay */
     }
-    #endScreen.active {
-      display: flex;
-      animation: flashBg 0.6s infinite;
-    }
+    #endScreen.active { display: flex; animation: flashBg 0.6s infinite; }
     @keyframes flashBg {
       0%   { background: rgba(12, 20, 69, 0.85); }
       50%  { background: rgba(26, 35, 126, 0.85); }
       100% { background: rgba(12, 20, 69, 0.85); }
     }
 
-    /* Yellow CTA button — large, bold, centered at top */
+    /* Yellow CTA button */
     #shutUpBtn {
-      background: #f1c40f;
-      color: #2c3e50;
-      font-size: 1.6rem;
-      font-weight: 800;
-      width: 90%;
-      max-width: 540px;
-      margin-bottom: 30px;
-      border-radius: 12px;
-      border: 4px solid white;
-      padding: 18px 20px;
-      cursor: pointer;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-      animation: pulse 1.2s infinite;
+      background: #f1c40f; color: #2c3e50; font-size: 1.6rem; font-weight: 800;
+      width: 90%; max-width: 540px; margin-bottom: 30px; border-radius: 12px;
+      border: 4px solid white; padding: 18px 20px; cursor: pointer;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45); animation: pulse 1.2s infinite;
       letter-spacing: -0.5px;
     }
-    @keyframes pulse {
-      0%   { transform: scale(1); }
-      50%  { transform: scale(1.06); }
-      100% { transform: scale(1); }
-    }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
 
     .end-message {
-      font-size: 3.5rem;
-      font-weight: 900;
-      color: white;
-      text-align: center;
-      margin-bottom: 20px;
-      text-shadow: 0 6px 24px rgba(0,0,0,0.55);
-      letter-spacing: -0.5px;
+      font-size: 3.5rem; font-weight: 900; color: white; text-align: center;
+      margin-bottom: 20px; text-shadow: 0 6px 24px rgba(0,0,0,0.55); letter-spacing: -0.5px;
     }
     .emoji-area {
-      font-size: 4rem;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      color: white;
-      margin-bottom: 30px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      font-size: 4rem; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      color: white; margin-bottom: 30px; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
-    /* Fireworks particles */
     .firework {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      animation: explode 2s forwards;
-      z-index: 10000;
+      position: absolute; width: 6px; height: 6px; border-radius: 50%;
+      animation: explode 2s forwards; z-index: 10000;
     }
     @keyframes explode {
       0%   { transform: translate(0,0); opacity: 1; }
@@ -192,129 +152,4 @@
     <button id="shutUpBtn">SHUT UP — I'M JOINING NOW! 📞</button>
     <div class="end-message">🎉 IT'S TIME! 🎉</div>
     <div class="emoji-area">🎊 💥 🎇 ✨ 🎆 🌟</div>
-  </section>
-
-  <script>
-    // Parse URL params
-    const p = new URLSearchParams(location.search);
-    const title = p.get('title') ? decodeURIComponent(p.get('title')) : 'Countdown';
-    const duration = p.get('duration'); // DD:HH:MM:SS
-
-    // Compute total seconds
-    let totalSecs = 0;
-    if (duration) {
-      const [d,h,m,s] = duration.split(':').map(Number);
-      totalSecs = (d*86400) + (h*3600) + (m*60) + (s||0);
-    } else {
-      totalSecs = 30;
-    }
-
-    // DOM refs
-    const dVal = document.getElementById('dVal');
-    const hVal = document.getElementById('hVal');
-    const mVal = document.getElementById('mVal');
-    const sVal = document.getElementById('sVal');
-    const titleEl = document.getElementById('displayTitle');
-    const endScreen = document.getElementById('endScreen');
-    const terminateBtn = document.getElementById('terminateBtn');
-    const shutUpBtn = document.getElementById('shutUpBtn');
-
-    titleEl.textContent = title;
-
-    let timerInt, alarmInt;
-    let isAlarmRunning = false;
-    let audioCtx = null;
-
-    function initAudio() {
-      if (!audioCtx) {
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-        catch { audioCtx = null; }
-      }
-    }
-    function playBeep() {
-      if (!isAlarmRunning || !audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = 880;
-      gain.gain.value = 0.2;
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.15);
-    }
-
-    function updateUI() {
-      let d = Math.floor(totalSecs / 86400);
-      let h = Math.floor((totalSecs % 86400) / 3600);
-      let m = Math.floor((totalSecs % 3600) / 60);
-      let s = totalSecs % 60;
-      dVal.textContent = String(d).padStart(2,'0');
-      hVal.textContent = String(h).padStart(2,'0');
-      mVal.textContent = String(m).padStart(2,'0');
-      sVal.textContent = String(s).padStart(2,'0');
-    }
-
-    function startTimer() {
-      updateUI();
-      timerInt = setInterval(() => {
-        totalSecs--;
-        updateUI();
-        if (totalSecs <= 0) {
-          clearInterval(timerInt);
-          triggerEnd();
-        }
-      }, 1000);
-    }
-
-    function triggerEnd() {
-      endScreen.classList.add('active');
-      initAudio();
-      isAlarmRunning = true;
-      playBeep();
-      alarmInt = setInterval(playBeep, 500);
-
-      // Fireworks
-      for (let i = 0; i < 100; i++) {
-        const fw = document.createElement('div');
-        fw.className = 'firework';
-        fw.style.left = Math.random()*100 + '%';
-        fw.style.top = Math.random()*100 + '%';
-        fw.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 55%)`;
-        fw.style.setProperty('--tx', (Math.random()-0.5)*420 + 'px');
-        fw.style.setProperty('--ty', (Math.random()-0.5)*420 + 'px');
-        endScreen.appendChild(fw);
-        setTimeout(() => fw.remove(), 2000);
-      }
-
-      // Auto-stop after 15s (failsafe)
-      setTimeout(() => { if (isAlarmRunning) stopEverything(); }, 15000);
-    }
-
-    function stopEverything() {
-      isAlarmRunning = false;
-      clearInterval(alarmInt);
-      endScreen.classList.remove('active');
-
-      if (audioCtx) {
-        try { audioCtx.close(); } catch(e) {}
-        audioCtx = null;
-      }
-      // Return to create screen
-      location.href = '/create.html';
-    }
-
-    function terminateNow() {
-      const ok = confirm('Terminate this timer now?');
-      if (!ok) return;
-      clearInterval(timerInt);
-      stopEverything();
-    }
-
-    terminateBtn.addEventListener('click', terminateNow);
-    shutUpBtn.addEventListener('click', stopEverything);
-
-    // Start!
-    startTimer();
-  </script>
-</body>
-</html>
+  
