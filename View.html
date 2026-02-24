@@ -1,200 +1,320 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TimeSync Timer</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-            color: #333;
-        }
-        
-        .subtitle {
-            font-size: 14px;
-            color: #999;
-            margin-bottom: 30px;
-        }
-        
-        .timer-display {
-            font-size: 56px;
-            font-weight: 700;
-            color: #667eea;
-            font-family: 'Courier New', monospace;
-            margin: 40px 0;
-            letter-spacing: 2px;
-        }
-        
-        .qr-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-        
-        .qr-label {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        #qrcode {
-            display: inline-block;
-        }
-        
-        .button {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .ended {
-            font-size: 48px;
-            font-weight: 700;
-            color: #e74c3c;
-            margin: 40px 0;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TimeSync Timer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      overflow: hidden;
+      position: relative;
+      text-align: center;
+    }
+
+    /* Dynamic gradient cycle (same 10 palettes as create.html) */
+    @keyframes bgCycle {
+      0%   { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+      10%  { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+      20%  { background: linear-gradient(135deg, #a6c1ee 0%, #f6d365 100%); }
+      30%  { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+      40%  { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+      50%  { background: linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%); }
+      60%  { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
+      70%  { background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); }
+      80%  { background: linear-gradient(135deg, #8ec5fc 0%, #e0c3fc 100%); }
+      90%  { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+      100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      animation: bgCycle 45s infinite ease;
+      z-index: -1;
+    }
+
+    /* Timer screen — no container, full immersion */
+    .timer-title {
+      font-size: 4rem;
+      color: white;
+      font-weight: 800;
+      margin-bottom: 30px;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      line-height: 1.1;
+      letter-spacing: -0.5px;
+    }
+    .timer-display {
+      display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 30px;
+      max-width: 800px;
+      width: 100%;
+    }
+    .unit {
+      background: rgba(255,255,255,0.94);
+      padding: 16px 18px;
+      border-radius: 16px;
+      min-width: 90px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.24);
+      backdrop-filter: blur(4px);
+    }
+    .val { font-size: 3.2rem; font-weight: 800; color: #2c3e50; display: block; }
+    .lab { font-size: 0.85rem; color: #7f8c8d; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+
+    /* Terminate button — exact same deep red gradient */
+    #terminateBtn {
+      background: linear-gradient(135deg, #9b2c2c, #8a2323);
+      color: white;
+      border: none;
+      padding: 18px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 90%;
+      max-width: 800px;
+      transition: 0.3s;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.3);
+      margin-top: 10px;
+    }
+    #terminateBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.4);
+    }
+
+    /* END SCREEN — gradient background + fireworks */
+    #endScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 5vh;
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+      background: rgba(12, 20, 69, 0.85); /* subtle overlay for contrast */
+    }
+    #endScreen.active {
+      display: flex;
+      animation: flashBg 0.6s infinite;
+    }
+    @keyframes flashBg {
+      0%   { background: rgba(12, 20, 69, 0.85); }
+      50%  { background: rgba(26, 35, 126, 0.85); }
+      100% { background: rgba(12, 20, 69, 0.85); }
+    }
+
+    /* Yellow CTA button — large, bold, centered at top */
+    #shutUpBtn {
+      background: #f1c40f;
+      color: #2c3e50;
+      font-size: 1.6rem;
+      font-weight: 800;
+      width: 90%;
+      max-width: 540px;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      border: 4px solid white;
+      padding: 18px 20px;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      animation: pulse 1.2s infinite;
+      letter-spacing: -0.5px;
+    }
+    @keyframes pulse {
+      0%   { transform: scale(1); }
+      50%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    .end-message {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 0 6px 24px rgba(0,0,0,0.55);
+      letter-spacing: -0.5px;
+    }
+    .emoji-area {
+      font-size: 4rem;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      color: white;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    /* Fireworks particles */
+    .firework {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: explode 2s forwards;
+      z-index: 10000;
+    }
+    @keyframes explode {
+      0%   { transform: translate(0,0); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="timerTitle">⏱️ TimeSync</h1>
-        <p class="subtitle">Everyone sees the same countdown</p>
-        
-        <div id="timerContent">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            
-            <div class="qr-section">
-                <div class="qr-label">Share This Link</div>
-                <div id="qrcode"></div>
-                <p style="margin-top: 12px; font-size: 12px; color: #666;" id="shareLink"></p>
-            </div>
-            
-            <button class="button" onclick="copyLink()">📋 Copy Link</button>
-            <button class="button" onclick="location.href='/'">← Back to Create</button>
-        </div>
-        
-        <div id="endedContent" style="display: none;">
-            <div class="ended">⏰ TIME'S UP!</div>
-            <p style="font-size: 18px; color: #333; margin: 20px 0;">SHUT UP — I'M JOINING NOW!</p>
-            <button class="button" onclick="location.href='/'">Create Another Timer</button>
-        </div>
-    </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const timerId = params.get('id');
-        const durationStr = params.get('duration');
-        const timerTitle = params.get('title') ? decodeURIComponent(params.get('title')) : 'TimeSync';
-        
-        let totalSeconds = 0;
-        if (durationStr) {
-            const [days, hours, minutes, seconds] = durationStr.split(':').map(Number);
-            totalSeconds = (days * 86400) + (hours * 3600) + (minutes * 60) + seconds;
-        } else {
-            totalSeconds = 30;
+  <!-- TIMER SCREEN -->
+  <h1 id="displayTitle" class="timer-title">Countdown</h1>
+
+  <div class="timer-display">
+    <div class="unit"><span id="dVal" class="val">00</span><span class="lab">Days</span></div>
+    <div class="unit"><span id="hVal" class="val">00</span><span class="lab">Hours</span></div>
+    <div class="unit"><span id="mVal" class="val">00</span><span class="lab">Mins</span></div>
+    <div class="unit"><span id="sVal" class="val">00</span><span class="lab">Secs</span></div>
+  </div>
+
+  <button id="terminateBtn">🛑 Terminate Timer</button>
+
+  <!-- END SCREEN -->
+  <section id="endScreen">
+    <button id="shutUpBtn">SHUT UP — I'M JOINING NOW! 📞</button>
+    <div class="end-message">🎉 IT'S TIME! 🎉</div>
+    <div class="emoji-area">🎊 💥 🎇 ✨ 🎆 🌟</div>
+  </section>
+
+  <script>
+    // Parse URL params
+    const p = new URLSearchParams(location.search);
+    const title = p.get('title') ? decodeURIComponent(p.get('title')) : 'Countdown';
+    const duration = p.get('duration'); // DD:HH:MM:SS
+
+    // Compute total seconds
+    let totalSecs = 0;
+    if (duration) {
+      const [d,h,m,s] = duration.split(':').map(Number);
+      totalSecs = (d*86400) + (h*3600) + (m*60) + (s||0);
+    } else {
+      totalSecs = 30;
+    }
+
+    // DOM refs
+    const dVal = document.getElementById('dVal');
+    const hVal = document.getElementById('hVal');
+    const mVal = document.getElementById('mVal');
+    const sVal = document.getElementById('sVal');
+    const titleEl = document.getElementById('displayTitle');
+    const endScreen = document.getElementById('endScreen');
+    const terminateBtn = document.getElementById('terminateBtn');
+    const shutUpBtn = document.getElementById('shutUpBtn');
+
+    titleEl.textContent = title;
+
+    let timerInt, alarmInt;
+    let isAlarmRunning = false;
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch { audioCtx = null; }
+      }
+    }
+    function playBeep() {
+      if (!isAlarmRunning || !audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.2;
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function updateUI() {
+      let d = Math.floor(totalSecs / 86400);
+      let h = Math.floor((totalSecs % 86400) / 3600);
+      let m = Math.floor((totalSecs % 3600) / 60);
+      let s = totalSecs % 60;
+      dVal.textContent = String(d).padStart(2,'0');
+      hVal.textContent = String(h).padStart(2,'0');
+      mVal.textContent = String(m).padStart(2,'0');
+      sVal.textContent = String(s).padStart(2,'0');
+    }
+
+    function startTimer() {
+      updateUI();
+      timerInt = setInterval(() => {
+        totalSecs--;
+        updateUI();
+        if (totalSecs <= 0) {
+          clearInterval(timerInt);
+          triggerEnd();
         }
-        
-        let remainingSeconds = totalSeconds;
-        let isRunning = false;
-        let timerInterval = null;
-        
-        document.getElementById('timerTitle').textContent = '⏱️ ' + timerTitle;
-        
-        const shareUrl = `${window.location.origin}/view.html?id=${timerId}&duration=${durationStr}${timerTitle ? '&title=' + encodeURIComponent(timerTitle) : ''}`;
-        new QRCode(document.getElementById('qrcode'), {
-            text: shareUrl,
-            width: 200,
-            height: 200,
-            colorDark: '#667eea',
-            colorLight: '#ffffff'
-        });
-        
-        document.getElementById('shareLink').textContent = shareUrl;
-        
-        function formatTime(secs) {
-            const hours = Math.floor(secs / 3600);
-            const mins = Math.floor((secs % 3600) / 60);
-            const secsRem = secs % 60;
-            return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secsRem).padStart(2, '0')}`;
-        }
-        
-        function updateDisplay() {
-            document.getElementById('timerDisplay').textContent = formatTime(remainingSeconds);
-        }
-        
-        function startTimer() {
-            if (isRunning) return;
-            isRunning = true;
-            
-            timerInterval = setInterval(() => {
-                remainingSeconds--;
-                updateDisplay();
-                
-                if (remainingSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    isRunning = false;
-                    onTimerEnd();
-                }
-            }, 1000);
-        }
-        
-        function onTimerEnd() {
-            document.getElementById('timerContent').style.display = 'none';
-            document.getElementById('endedContent').style.display = 'block';
-        }
-        
-        function copyLink() {
-            navigator.clipboard.writeText(document.getElementById('shareLink').textContent).then(() => {
-                alert('Link copied to clipboard!');
-            });
-        }
-        
-        updateDisplay();
-        startTimer();
-    </script>
+      }, 1000);
+    }
+
+    function triggerEnd() {
+      endScreen.classList.add('active');
+      initAudio();
+      isAlarmRunning = true;
+      playBeep();
+      alarmInt = setInterval(playBeep, 500);
+
+      // Fireworks
+      for (let i = 0; i < 100; i++) {
+        const fw = document.createElement('div');
+        fw.className = 'firework';
+        fw.style.left = Math.random()*100 + '%';
+        fw.style.top = Math.random()*100 + '%';
+        fw.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 55%)`;
+        fw.style.setProperty('--tx', (Math.random()-0.5)*420 + 'px');
+        fw.style.setProperty('--ty', (Math.random()-0.5)*420 + 'px');
+        endScreen.appendChild(fw);
+        setTimeout(() => fw.remove(), 2000);
+      }
+
+      // Auto-stop after 15s (failsafe)
+      setTimeout(() => { if (isAlarmRunning) stopEverything(); }, 15000);
+    }
+
+    function stopEverything() {
+      isAlarmRunning = false;
+      clearInterval(alarmInt);
+      endScreen.classList.remove('active');
+
+      if (audioCtx) {
+        try { audioCtx.close(); } catch(e) {}
+        audioCtx = null;
+      }
+      // Return to create screen
+      location.href = '/create.html';
+    }
+
+    function terminateNow() {
+      const ok = confirm('Terminate this timer now?');
+      if (!ok) return;
+      clearInterval(timerInt);
+      stopEverything();
+    }
+
+    terminateBtn.addEventListener('click', terminateNow);
+    shutUpBtn.addEventListener('click', stopEverything);
+
+    // Start!
+    startTimer();
+  </script>
 </body>
 </html>
